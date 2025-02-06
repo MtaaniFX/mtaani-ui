@@ -65,10 +65,10 @@ const UploadPage = () => {
       if (user) {
         const { error } = await supabase.from('verification_requests').insert([
           {
-            user_id: user.user.id,
-            passport_photo_url: urls['passport'],
-            id_front_url: urls['idFront'],
-            id_back_url: urls['idBack'],
+            user_id: user.user?.id,
+            // passport_photo_url: urls['passport'],
+            // id_front_url: urls['idFront'],
+            // id_back_url: urls['idBack'],
           },
         ]);
 
