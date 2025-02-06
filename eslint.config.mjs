@@ -17,4 +17,15 @@ export default [
     // This ESLint: Config (unnamed): Key "plugins": still uses the deprecated eslintrc format (array of strings)
     // rather than flat config format (object), needs update when the upstream `Next.js` update their configuration
     // pluginNext.configs.recommended,
+    {
+        rules: {
+            '@typescript-eslint/no-unused-vars': 'warn',
+            '@typescript-eslint/no-explicit-any': 'warn',
+            '@typescript-eslint/no-empty-object-type': 'warn',
+            'no-async-promise-executor': 'warn',
+            '@typescript-eslint/ban-ts-comment': 'warn',
+            'prefer-const': 'warn',
+            // '': 'warn',
+        }
+    }
 ];

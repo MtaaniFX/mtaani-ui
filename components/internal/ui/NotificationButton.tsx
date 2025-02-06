@@ -8,11 +8,9 @@ const NotificationButton = styled('div')(({ theme }) => ({
     borderRadius: `9999px`,
     backdropFilter: 'blur(24px)',
     border: '1px solid',
-    borderColor: (theme['vars'] || theme).palette.divider,
-    backgroundColor: theme['vars']
-        ? `rgba(${theme['vars'].palette.background.defaultChannel} / 0.4)`
-        : alpha(theme.palette.background.default, 0.4),
-    boxShadow: (theme['vars'] || theme).shadows[1],
+    borderColor: theme.palette.divider,
+    backgroundColor: alpha(theme.palette.background.default, 0.4),
+    boxShadow: theme.shadows[1],
     padding: '8px 20px',
     fontFamily: 'Inter',
     cursor: 'pointer',

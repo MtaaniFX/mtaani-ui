@@ -22,7 +22,7 @@ import {paths} from "@/lib/paths";
 
 const supabase = createClient();
 
-export default function UpdatePassword(props: { disableCustomTheme?: boolean }) {
+export default function UpdatePassword() {
     const [passwordError, setPasswordError] = React.useState(false);
     const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
     const [alertOpen, setAlertOpen] = React.useState(false);
@@ -91,7 +91,7 @@ export default function UpdatePassword(props: { disableCustomTheme?: boolean }) 
     };
 
     return (
-        <AppTheme {...props}>
+        <AppTheme>
             <CssBaseline enableColorScheme/>
             <ColorModeSelect sx={{position: 'fixed', top: '1rem', right: '1rem'}}/>
             <Snackbar

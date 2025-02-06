@@ -4,6 +4,7 @@ import { encodedRedirect } from "@/utils/utils";
 import { createClient } from "@/utils/supabase/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { paths } from '@/lib/paths'
 
 export const signUpAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
@@ -46,10 +47,10 @@ export const signInAction = async (formData: FormData) => {
   });
 
   if (error) {
-    return encodedRedirect("error", "/sign-in", error.message);
+    return encodedRedirect("error", paths.auth.signIn, error.message);
   }
 
-  return redirect("/protected");
+  return redirect(paths.dashboard.overview);
 };
 
 export const forgotPasswordAction = async (formData: FormData) => {
