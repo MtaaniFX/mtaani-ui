@@ -22,7 +22,10 @@ export default [
             '@typescript-eslint/no-unused-vars': 'warn',
             '@typescript-eslint/no-explicit-any': 'warn',
             '@typescript-eslint/no-empty-object-type': 'warn',
-            'import/prefer-default-export': 'warn',
+            'no-async-promise-executor': 'warn',
+            '@typescript-eslint/ban-ts-comment': 'warn',
+            'prefer-const': 'warn',
+            // '': 'warn',
         }
     }
 ];
