@@ -45,6 +45,11 @@ export const updateSession = async (request: NextRequest) => {
       // User is not authenticated, redirect them to sign-in
       return NextResponse.redirect(new URL(paths.auth.signIn, request.url));
     }
+    
+    if (request.nextUrl.pathname.startsWith(`/${paths.dashboard.root}`) && user.error) {
+      // User is not authenticated, redirect them to sign-in
+      return NextResponse.redirect(new URL(paths.auth.signIn, request.url));
+    }
 
     // if (request.nextUrl.pathname === "/" && !user.error) {
     //   // User is authenticated, redirect to the dashboard

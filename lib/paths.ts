@@ -8,6 +8,7 @@ export const paths = {
         updatePassword: '/u/0/update-password'
     },
     dashboard: {
+        root: dashboard,
         overview: dashboard,
         account: `${dashboard}/account`,
         customers: `${dashboard}/customers`,
