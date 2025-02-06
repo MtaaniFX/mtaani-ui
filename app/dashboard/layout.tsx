@@ -9,6 +9,7 @@ import type { Navigation } from '@toolpad/core/AppProvider';
 
 import theme from '@/theme';
 import { FaviconRow } from '@/components/internal/icons/Favicon';
+import { paths } from '@/lib/paths';
 
 const NAVIGATION: Navigation = [
   {
@@ -16,12 +17,12 @@ const NAVIGATION: Navigation = [
     title: 'Quick Start',
   },
   {
-    segment: 'd',
+    segment: paths.dashboard.overview,
     title: 'Overview',
     icon: <DashboardIcon />,
   },
   {
-    segment: 'd/orders',
+    segment: paths.dashboard.orders,
     title: 'Investments',
     icon: <ShoppingCartIcon />,
   },
@@ -30,7 +31,7 @@ const NAVIGATION: Navigation = [
     title: 'User',
   },
   {
-    segment: 'd/profile',
+    segment: paths.dashboard.profile,
     title: 'Profile',
     icon: <PersonIcon />,
   },

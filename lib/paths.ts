@@ -1,4 +1,4 @@
-export const dashboard = 'd'
+export const dashboard = 'dashboard'
 export const paths = {
     home: '/',
     auth: {
@@ -13,5 +13,7 @@ export const paths = {
         customers: `${dashboard}/customers`,
         integrations: `${dashboard}/integrations`,
         settings: `${dashboard}/settings`,
+        orders: `${dashboard}/orders`,
+        profile: `${dashboard}/profile`,
     },
 } as const;
