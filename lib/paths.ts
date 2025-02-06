@@ -1,3 +1,4 @@
+export const dashboard = 'd'
 export const paths = {
     home: '/',
     auth: {
@@ -7,10 +8,10 @@ export const paths = {
         updatePassword: '/u/0/update-password'
     },
     dashboard: {
-        overview: '/dashboard',
-        account: '/dashboard/account',
-        customers: '/dashboard/customers',
-        integrations: '/dashboard/integrations',
-        settings: '/dashboard/settings',
+        overview: dashboard,
+        account: `${dashboard}/account`,
+        customers: `${dashboard}/customers`,
+        integrations: `${dashboard}/integrations`,
+        settings: `${dashboard}/settings`,
     },
 } as const;
