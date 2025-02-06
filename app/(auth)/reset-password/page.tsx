@@ -23,7 +23,7 @@ import {paths} from "@/lib/paths";
 
 const supabase = createClient();
 
-export default function (props: { disableCustomTheme?: boolean }) {
+export default function () {
     const [emailError, setEmailError] = React.useState(false);
     const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
     const [alertOpen, setAlertOpen] = React.useState(false);
@@ -72,7 +72,7 @@ export default function (props: { disableCustomTheme?: boolean }) {
     };
 
     return (
-        <AppTheme {...props}>
+        <AppTheme>
             <CssBaseline enableColorScheme/>
             <ColorModeSelect sx={{position: 'fixed', top: '1rem', right: '1rem'}}/>
             <ResetSuccessDialogue

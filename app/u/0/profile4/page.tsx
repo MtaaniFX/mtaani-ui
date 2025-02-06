@@ -94,13 +94,6 @@ const DocumentUploadPage = () => {
       const { data, error } = await supabase.storage
         .from('verification-documents')
         .upload(fileName, file, {
-          onUploadProgress: (progress) => {
-            const percentage = (progress.loaded / progress.total) * 100;
-            setUploads(prev => ({
-              ...prev,
-              [type]: { ...prev[type], progress: percentage }
-            }));
-          }
         });
 
       if (error) throw error;

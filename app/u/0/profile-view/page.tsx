@@ -7,11 +7,10 @@ export const metadata: Metadata = {
     description: "View your profile details",
 };
 
-export default function Page({ children }: Readonly<{ children: React.ReactNode }>) {
+export default function Page() {
     return (
         <>
             <ProfileView />
-            {children}
         </>
     );
 }

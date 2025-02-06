@@ -15,9 +15,9 @@ import FAQ from "@/components/internal/landing-page/FAQ";
 import Footer from "@/components/internal/landing-page/Footer";
 import LandingPageBackground from "@/components/internal/landing-page/LandingPageBackground";
 
-function LandingPage(props:any) {
+function LandingPage() {
     return (
-        <AppTheme {...props}>
+        <AppTheme>
             <CssBaseline enableColorScheme />
             <LandingPageBackground>
                 <AppAppBar/>

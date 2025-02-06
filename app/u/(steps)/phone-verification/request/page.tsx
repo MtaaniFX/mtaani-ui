@@ -16,7 +16,7 @@ const PhoneVerificationPage = () => {
         setLoading(true);
         setError('');
         try {
-            const user = supabase.auth.getUser();
+            const {data: {user}}  = await supabase.auth.getUser();
             if (!user) {
                 setError('User not authenticated');
                 setLoading(false);
