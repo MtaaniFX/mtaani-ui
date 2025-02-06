@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { 
   Box, Typography, Grid, Card, CardContent, 
   Button, Dialog, DialogActions, 
@@ -153,4 +153,12 @@ const VerificationDetailsPage = () => {
   );
 };
 
-export default VerificationDetailsPage;
+export default function Page(){
+  return (
+      <>
+        <Suspense>
+          <VerificationDetailsPage/>
+        </Suspense>
+      </>
+  )
+}
