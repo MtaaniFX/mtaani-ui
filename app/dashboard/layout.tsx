@@ -10,6 +10,7 @@ import type { Navigation } from '@toolpad/core/AppProvider';
 import theme from '@/theme';
 import { FaviconRow } from '@/components/internal/icons/Favicon';
 import { paths } from '@/lib/paths';
+import { MonetizationOn, Money } from '@mui/icons-material';
 
 const NAVIGATION: Navigation = [
   {
@@ -35,6 +36,21 @@ const NAVIGATION: Navigation = [
     title: 'Profile',
     icon: <PersonIcon />,
   },
+  {
+    segment: paths.dashboard.deposit,
+    title: 'Deposit',
+    icon: <MonetizationOn/>,
+  },
+  {
+    segment: paths.dashboard.referrals,
+    title: 'Referrals',
+    icon: <PersonIcon />,
+  },
+  {
+    segment: paths.dashboard.transactions,
+    title: 'Transactions',
+    icon: <Money/>,
+  }
 ];
 
 const BRANDING = {
