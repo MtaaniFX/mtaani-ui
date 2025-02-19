@@ -161,7 +161,7 @@ export default function DashboardOverview() {
   return (
     <Box sx={{ p: 3, pt: 0 }}>
       {/* Verification Alerts */}
-      {!!verification
+      {verification
         ? <Grid container spacing={2} sx={{ mb: 4 }}>
           {!verification?.isEmailVerified && (
             <Grid item xs={12} md={6}>
