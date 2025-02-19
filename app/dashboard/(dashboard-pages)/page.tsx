@@ -159,7 +159,7 @@ export default function DashboardOverview() {
   if (loading) return <LinearProgress sx={{ width: '100%' }} />;
 
   return (
-    <Box sx={{ p: 3, pt: 0 }}>
+    <Box sx={{ p: 3, pt: 2 }}>
       {/* Verification Alerts */}
       {verification
         ? <Grid container spacing={2} sx={{ mb: 4 }}>
