@@ -84,10 +84,19 @@ export default function DashboardOverview() {
     }
 
     console.log("user phone verified:", data?.is_verified);
-    if (data) setVerification({
-      isPhoneVerified: data.is_verified,
-      isEmailVerified: true
-    });
+    if(data) {
+      if(data.is_verified){
+        setVerification({
+          isPhoneVerified: data.is_verified,
+          isEmailVerified: true
+        });
+      } else {
+        setVerification({
+          isPhoneVerified: false,
+          isEmailVerified: true
+        });
+      }
+    }
   };
 
   const fetchUserInvestments = async () => {
