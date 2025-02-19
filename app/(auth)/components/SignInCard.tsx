@@ -20,6 +20,35 @@ import { MtCard } from '@/components/internal/styled/MtCard';
 
 const supabase = createClient();
 
+async function loginWithPhone(phoneNumber: string, password: string) {
+    try {
+      const response = await fetch('/sign-in/phone', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ phone_number: phoneNumber, password }),
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Login failed');
+      }
+  
+      const data = await response.json();
+  
+      // Update Supabase client with the new session
+      await supabase.auth.setSession({
+        access_token: data.session.access_token,
+        refresh_token: data.session.refresh_token,
+      });
+  
+    } catch (error) {
+      console.error('Error during login:', error);
+      throw error;
+    }
+  }
+
 export default function SignInCard() {
     const [emailOrPhoneError, setEmailOrPhoneError] = React.useState(false);
     const [emailOrPhoneErrorMessage, setEmailOrPhoneErrorMessage] = React.useState('');
@@ -44,18 +73,57 @@ export default function SignInCard() {
             return
         }
 
-        const { error } = /\S+@\S+\.\S+/.test(emailOrPhone as string)
-            ? await supabase.auth.signInWithPassword({
+        // let error;
+        // if(/\S+@\S+\.\S+/.test(emailOrPhone as string)){
+        //     console.log('logging in with email: ', emailOrPhone);
+        //     error = await supabase.auth.signInWithPassword({
+        //         email: emailOrPhone as string,
+        //         password: password as string,
+        //     });
+        // } else {
+        //     console.log('logging in with phone: ', emailOrPhone);
+        //     error = await supabase.auth.signInWithPassword({
+        //         phone: emailOrPhone as string,
+        //         password: password as string,
+        //     });
+        // }
+
+        // error = error.error;
+
+        // const { error } = /\S+@\S+\.\S+/.test(emailOrPhone as string)
+        //     ? await supabase.auth.signInWithPassword({
+        //         email: emailOrPhone as string,
+        //         password: password as string,
+        //     }) : await supabase.auth.signInWithPassword({
+        //         phone: emailOrPhone as string,
+        //         password: password as string,
+        //     });
+
+        let error: string | null = null;
+        if(/\S+@\S+\.\S+/.test(emailOrPhone as string)){
+            console.log('logging in with email: ', emailOrPhone);
+            const signInData = await supabase.auth.signInWithPassword({
                 email: emailOrPhone as string,
-                password: password as string,
-            }) : await supabase.auth.signInWithPassword({
-                phone: emailOrPhone as string,
                 password: password as string,
             });
 
+            if (signInData.error) {
+                error = signInData.error.message;
+            }
+
+        } else {
+            console.log('logging in with phone: ', emailOrPhone);
+            try {
+                await loginWithPhone(emailOrPhone as string, password as string);
+            } catch {
+                error = "Login Failed";
+            }
+        }
+
+
         if (error) {
             setSubmissionError(true);
-            setSubmissionMessage(error.message);
+            setSubmissionMessage(error);
             return
         }
 
