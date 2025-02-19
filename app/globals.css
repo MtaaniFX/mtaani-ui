@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -49,7 +51,7 @@
         --ring: 26 100.00% 40.34%;
     }
 }
-
+/* 
 @layer base {
     * {
         @apply border-border;
@@ -58,4 +60,4 @@
     body {
         @apply bg-background text-foreground;
     }
-}
+} */
