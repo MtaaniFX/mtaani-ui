@@ -5,6 +5,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import theme from '@/theme.root';
 import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
 import { Metadata } from 'next/types';
+// import "./globals.css"
 
 export const metadata: Metadata = {
     title: "Home | Mtaani FX",

@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from "@/utils/supabase/client";
 import {
-  Alert,
   Box,
   Card,
   CardContent,
@@ -12,18 +11,17 @@ import {
   Grid,
   Button,
   Chip,
-  Paper,
   TablePagination,
-  CircularProgress
+  LinearProgress
 } from '@mui/material';
 import {
   VerifiedUser,
   Phone,
-  Warning,
   AccountBalance,
   Payment
 } from '@mui/icons-material';
-
+import { getUserData } from "@/utils/supabase/utils";
+import { paths } from '@/lib/paths';
 
 type UserVerification = {
   isEmailVerified: boolean;
@@ -54,7 +52,6 @@ type UserInvestment = {
 export default function DashboardOverview() {
   const router = useRouter();
   const [verification, setVerification] = useState<UserVerification | null>(null);
-  const [plans, setPlans] = useState<InvestmentPlan[]>([]);
   const [userInvestments, setUserInvestments] = useState<UserInvestment[]>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -64,42 +61,46 @@ export default function DashboardOverview() {
 
   useEffect(() => {
     fetchUserData();
-    fetchInvestmentPlans();
     fetchUserInvestments();
   }, []);
 
   const fetchUserData = async () => {
+    const userData = await getUserData(supabase);
+    if (!userData) {
+      return
+    }
+
     const { data, error } = await supabase
-      .from('user_verification')
-      .select('*')
+      .schema('app_phone')
+      .from('phone_numbers')
+      .select('user_id, is_verified')
+      .eq('user_id', userData.UserId)
+      .order('phone_confirmed_at', { ascending: false })
+      .limit(1)
       .single();
 
-    if (data) setVerification(data);
-  };
+    if (error) {
+      console.error(error);
+    }
 
-  const fetchInvestmentPlans = async () => {
-    const { data } = await supabase
-      .from('investment_plans')
-      .select('*');
-
-    if (data) setPlans(data);
-
-    const mockPlans: InvestmentPlan[] = [
-      {
-        id: "",
-        name: '',
-        category: 'starter',
-        minAmount: 10_000,
-        maxAmount: 50_000,
-        interestRate: 20,
-        duration: '',
-        features: ['f1', 'f2'],
+    console.log("user phone verified:", data?.is_verified);
+    if(data) {
+      if(data.is_verified){
+        setVerification({
+          isPhoneVerified: data.is_verified,
+          isEmailVerified: true
+        });
+      } else {
+        setVerification({
+          isPhoneVerified: false,
+          isEmailVerified: true
+        });
       }
-    ];
-    setPlans(mockPlans);
+    }
   };
 
   const fetchUserInvestments = async () => {
+    // TODO: fetch from appropriate table
     const { data } = await supabase
       .from('user_investments')
       .select('*')
@@ -114,16 +115,13 @@ export default function DashboardOverview() {
       variant="outlined"
       sx={{
         cursor: 'pointer',
-        bgcolor: 'error.light',
-        color: 'white',
-        '&:hover': { bgcolor: 'error.main' }
       }}
-      onClick={() => router.push(`/settings/${type}-verification`)}
+      onClick={() => router.push(type === 'email' ? "" : "/dashboard/phone-verification/request")}
     >
       <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
         {type === 'email' ? <VerifiedUser /> : <Phone />}
         <Typography>
-          {type === 'email' ? 'Verify you Account' : 'Verify your phone number'}
+          {type === 'email' ? 'Verify you Account' : 'Link your phone number'}
         </Typography>
       </CardContent>
     </Card>
@@ -167,33 +165,25 @@ export default function DashboardOverview() {
     </Card>
   );
 
-  if (loading) return <CircularProgress />;
+  if (loading) return <LinearProgress sx={{ width: '100%' }} />;
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: 3, pt: 2 }}>
       {/* Verification Alerts */}
-      <Grid container spacing={2} sx={{ mb: 4 }}>
-        {!verification?.isEmailVerified && (
-          <Grid item xs={12} md={6}>
-            <VerificationCard type="email" />
-          </Grid>
-        )}
-        {!verification?.isPhoneVerified && (
-          <Grid item xs={12} md={6}>
-            <VerificationCard type="phone" />
-          </Grid>
-        )}
-      </Grid>
-
-      {/* Investment Plans
-            <Typography variant="h5" gutterBottom>Investment Plans</Typography>
-            <Grid container spacing={3} sx={{ mb: 4 }}>
-                {plans.map((plan) => (
-                    <Grid item xs={12} md={4} key={plan.id}>
-                        <PlanCard plan={plan} />
-                    </Grid>
-                ))}
-            </Grid> */}
+      {verification
+        ? <Grid container spacing={2} sx={{ mb: 4 }}>
+          {!verification?.isEmailVerified && (
+            <Grid item xs={12} md={6}>
+              <VerificationCard type="email" />
+            </Grid>
+          )}
+          {!verification?.isPhoneVerified && (
+            <Grid item xs={12} md={6}>
+              <VerificationCard type="phone" />
+            </Grid>
+          )}
+        </Grid> : null
+      }
 
       {/* User Investments */}
       <Typography variant="h5" gutterBottom>Your Investments</Typography>
@@ -262,7 +252,7 @@ export default function DashboardOverview() {
             <Button
               variant="contained"
               size="large"
-              onClick={() => router.push('/invest/new')}
+              onClick={() => router.push(paths.dashboard.orders)}
             >
               Start Investing
             </Button>
@@ -278,9 +268,9 @@ export default function DashboardOverview() {
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <img
-              src="/res/regulatory/lipa-na-m-pesa.png"
+              src="res/regulatory/mpesa-payment.webp"
               alt="MPesa"
-              style={{ height: 40 }}
+              style={{ width: 70, height: 53 }}
             />
           </Box>
         </CardContent>

@@ -10,19 +10,48 @@ import Link from '@mui/material/Link';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { GoogleIcon, FacebookIcon } from './CustomIcons';
-import {FaviconRow} from '@/components/internal/icons/Favicon';
-import {paths} from "@/lib/paths";
+import { FaviconRow } from '@/components/internal/icons/Favicon';
+import { paths } from "@/lib/paths";
 import UnderConstructionDialogue from "@/components/internal/ui/UnderConstructionDialogue";
-import {createClient} from "@/utils/supabase/client";
-import {useRouter} from "next/navigation";
-import {Alert, AlertTitle, Snackbar} from "@mui/material";
+import { createClient } from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
+import { Alert, AlertTitle, Snackbar } from "@mui/material";
 import { MtCard } from '@/components/internal/styled/MtCard';
 
 const supabase = createClient();
 
+async function loginWithPhone(phoneNumber: string, password: string) {
+    try {
+      const response = await fetch('/sign-in/phone', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ phone_number: phoneNumber, password }),
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Login failed');
+      }
+  
+      const data = await response.json();
+  
+      // Update Supabase client with the new session
+      await supabase.auth.setSession({
+        access_token: data.session.access_token,
+        refresh_token: data.session.refresh_token,
+      });
+  
+    } catch (error) {
+      console.error('Error during login:', error);
+      throw error;
+    }
+  }
+
 export default function SignInCard() {
-    const [emailError, setEmailError] = React.useState(false);
-    const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
+    const [emailOrPhoneError, setEmailOrPhoneError] = React.useState(false);
+    const [emailOrPhoneErrorMessage, setEmailOrPhoneErrorMessage] = React.useState('');
     const [passwordError, setPasswordError] = React.useState(false);
     const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
     const [underConstruction, setUnderConstruction] = React.useState(false);
@@ -32,30 +61,73 @@ export default function SignInCard() {
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        if (emailError || passwordError) {
+        if (emailOrPhoneError || passwordError) {
             return;
         }
 
         const formData = new FormData(event.currentTarget);
-        const email = formData.get('email');
+        const emailOrPhone = formData.get('email-or-phone');
         const password = formData.get('password');
 
-        if(!email || !password) {
+        if (!emailOrPhone || !password) {
             return
         }
 
-        const { error } = await supabase.auth.signInWithPassword({
-            email: email as string,
-            password: password as string,
-        })
+        // let error;
+        // if(/\S+@\S+\.\S+/.test(emailOrPhone as string)){
+        //     console.log('logging in with email: ', emailOrPhone);
+        //     error = await supabase.auth.signInWithPassword({
+        //         email: emailOrPhone as string,
+        //         password: password as string,
+        //     });
+        // } else {
+        //     console.log('logging in with phone: ', emailOrPhone);
+        //     error = await supabase.auth.signInWithPassword({
+        //         phone: emailOrPhone as string,
+        //         password: password as string,
+        //     });
+        // }
 
-        if(error) {
+        // error = error.error;
+
+        // const { error } = /\S+@\S+\.\S+/.test(emailOrPhone as string)
+        //     ? await supabase.auth.signInWithPassword({
+        //         email: emailOrPhone as string,
+        //         password: password as string,
+        //     }) : await supabase.auth.signInWithPassword({
+        //         phone: emailOrPhone as string,
+        //         password: password as string,
+        //     });
+
+        let error: string | null = null;
+        if(/\S+@\S+\.\S+/.test(emailOrPhone as string)){
+            console.log('logging in with email: ', emailOrPhone);
+            const signInData = await supabase.auth.signInWithPassword({
+                email: emailOrPhone as string,
+                password: password as string,
+            });
+
+            if (signInData.error) {
+                error = signInData.error.message;
+            }
+
+        } else {
+            console.log('logging in with phone: ', emailOrPhone);
+            try {
+                await loginWithPhone(emailOrPhone as string, password as string);
+            } catch {
+                error = "Login Failed";
+            }
+        }
+
+
+        if (error) {
             setSubmissionError(true);
-            setSubmissionMessage(error.message)
+            setSubmissionMessage(error);
             return
         }
 
-        setTimeout(()=>{
+        setTimeout(() => {
             const url = new URL(window.location.href);
             const redirectTo = url.searchParams.get("redirect_to");
 
@@ -68,19 +140,21 @@ export default function SignInCard() {
     };
 
     const validateInputs = () => {
-        const email = document.getElementById('email') as HTMLInputElement;
+        const emailOrPhone = document.getElementById('email-or-phone') as HTMLInputElement;
         const password = document.getElementById('password') as HTMLInputElement;
         setSubmissionError(false);
 
         let isValid = true;
+        const validEmailOrPhone = /\S+@\S+\.\S+/.test(emailOrPhone.value) ||
+            /^[+]*[0-9]{7,15}$/.test(emailOrPhone.value);
 
-        if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
-            setEmailError(true);
-            setEmailErrorMessage('Please enter a valid email address.');
+        if (!emailOrPhone.value || !validEmailOrPhone) {
+            setEmailOrPhoneError(true);
+            setEmailOrPhoneErrorMessage('Please enter a valid email address/phone.');
             isValid = false;
         } else {
-            setEmailError(false);
-            setEmailErrorMessage('');
+            setEmailOrPhoneError(false);
+            setEmailOrPhoneErrorMessage('');
         }
 
         if (!password.value || password.value.length < 6) {
@@ -99,14 +173,14 @@ export default function SignInCard() {
         <MtCard variant="outlined">
             <UnderConstructionDialogue
                 open={underConstruction}
-                setOpen={setUnderConstruction}/>
+                setOpen={setUnderConstruction} />
             <Snackbar
-                anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                 open={submissionError} >
                 <Alert
                     severity="error"
                     variant="filled"
-                    onClose={() => {setSubmissionError(false);}}
+                    onClose={() => { setSubmissionError(false); }}
                     sx={{ width: '100%' }}
                 >
                     <AlertTitle>Error</AlertTitle>
@@ -114,7 +188,7 @@ export default function SignInCard() {
                 </Alert>
             </Snackbar>
             <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
-                <FaviconRow/>
+                <FaviconRow />
             </Box>
             <Typography
                 component="h1"
@@ -130,20 +204,19 @@ export default function SignInCard() {
                 sx={{ display: 'flex', flexDirection: 'column', width: '100%', gap: 2 }}
             >
                 <FormControl>
-                    <FormLabel htmlFor="email">Email</FormLabel>
+                    <FormLabel htmlFor="email-or-phone">Email or Phone </FormLabel>
                     <TextField
-                        error={emailError}
-                        helperText={emailErrorMessage}
-                        id="email"
-                        type="email"
-                        name="email"
-                        placeholder="your@email.com"
-                        autoComplete="email"
+                        error={emailOrPhoneError}
+                        helperText={emailOrPhoneErrorMessage}
+                        id="email-or-phone"
+                        name="email-or-phone"
+                        placeholder="your@email.com or 07xxx or 01xxx"
+                        autoComplete="email tel"
                         autoFocus
                         required
                         fullWidth
                         variant="outlined"
-                        color={emailError ? 'error' : 'primary'}
+                        color={emailOrPhoneError ? 'error' : 'primary'}
                     />
                 </FormControl>
                 <FormControl>
@@ -182,14 +255,14 @@ export default function SignInCard() {
                 <Typography sx={{ textAlign: 'center' }}>
                     Don&apos;t have an account?{' '}
                     <span>
-            <Link
-                href={paths.auth.signUp}
-                variant="body2"
-                sx={{ alignSelf: 'center' }}
-            >
-              Sign up
-            </Link>
-          </span>
+                        <Link
+                            href={paths.auth.signUp}
+                            variant="body2"
+                            sx={{ alignSelf: 'center' }}
+                        >
+                            Sign up
+                        </Link>
+                    </span>
                 </Typography>
             </Box>
             <Divider>or</Divider>
